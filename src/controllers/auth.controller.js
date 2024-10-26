@@ -1,11 +1,14 @@
 const jwt = require('jsonwebtoken');
-const { registerUser, loginUser } = require('../services/auth.service.js');
+const authService = require('../services/auth.service.js');
 
 exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const { token, user } = await registerUser({ name, email, password });
-    res.status(201).json({ token, user });
+    const { token, user } = await authService.registerUser({ name, email, password });
+    
+    // Set token in cookie
+    res.cookie('accessToken', token, { httpOnly: true, secure: true, maxAge: 3600000 }); // 1 hour expiry
+    res.status(201).json({ user, token });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -14,13 +17,18 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const { token, user } = await loginUser({ email, password });
-    res.json({ token, user });
+    const { token, user } = await authService.loginUser({ email, password });
+    
+    // Set token in cookie
+    res.cookie('accessToken', token, { httpOnly: true, secure: true, maxAge: 3600000 }); // 1 hour expiry
+    res.json({ user, token });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
 exports.logout = (req, res) => {
-  res.json({ message: 'Logged out successfully. Please remove the token from client storage.' });
+  // Clear token from cookies
+  res.clearCookie('accessToken');
+  res.json({ message: 'Logged out successfully.' });
 };
