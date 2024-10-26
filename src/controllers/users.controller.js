@@ -1,34 +1,22 @@
 const jwt = require('jsonwebtoken');
-const { registerUser, loginUser, predictNationality } = require('../services/users.service.js');
-
-exports.register = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-    const { token, user } = await registerUser({ name, email, password });
-    res.status(201).json({ token, user });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const { token, user } = await loginUser({ email, password });
-    res.json({ token, user });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
+const { predictNationality, getUserById } = require('../services/users.service.js');
 
 exports.currentUser = (req, res) => {
   res.json(req.user);  
 };
 
-exports.logout = (req, res) => {
-  res.json({ message: 'Logged out successfully. Please remove the token from client storage.' });
-};
+exports.getUser = async (req, res) => {
 
+  const { id } = req.params
+
+  try {
+    const user = await getUserById(id);
+
+    res.status(201).json({ user });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
 
 exports.getNationality = async (req, res) => {
   const { name } = req.user; 

@@ -1,7 +1,9 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const { connectToDB } = require('./config/database.js');
-const authRoutes = require('./routes/users.route.js');
+const userRoutes = require('./routes/users.route.js');
+const authRoutes = require('./routes/auth.route.js');
+const { registerRoutes } = require('./routes/index.js')
 const cookieParser = require('cookie-parser');
 
 
@@ -11,7 +13,8 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use('/api', authRoutes);
+
+registerRoutes(app);
 
 connectToDB();
 
